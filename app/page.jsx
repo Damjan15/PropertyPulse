@@ -5,7 +5,23 @@ import InfoBoxes from "@/components/InfoBoxes";
 import properties from "@/properties.json";
 import PropertyCard from "@/components/PropertyCard";
 
-export default function Home() {
+async function fetchProperties() {
+  try {
+    const res = await fetch('http://localhost:3000/api/properties');
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch data");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export default async function Home() {
+  const properties = await fetchProperties();
+
   const recentProperties = properties.sort(() => Math.random() - Math.random()).slice(0, 3);
 
   return (
