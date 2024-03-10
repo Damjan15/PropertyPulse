@@ -7,6 +7,7 @@ import PropertyCard from "@/components/PropertyCard";
 
 export default function Home() {
   const recentProperties = properties.sort(() => Math.random() - Math.random()).slice(0, 3);
+
   return (
     <>
       <Hero />
