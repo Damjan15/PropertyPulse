@@ -1,5 +1,13 @@
+import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import InfoBoxes from "@/components/InfoBoxes";
+
 export default function Home() {
   return (
-    <h1>Homepage</h1>
+    <>
+      <Hero />
+      <InfoBoxes />
+      <Footer />
+    </>
   );
 }
