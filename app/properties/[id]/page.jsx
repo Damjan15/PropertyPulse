@@ -49,6 +49,8 @@ export default function Property() {
     );
   }
 
+  console.log(property);
+
   return (
     <>
       {loading && <Spinner loading={loading} />}

@@ -9,7 +9,7 @@ async function fetchProperties() {
     }
 
     const res = await fetch(`${apiDomain}/properties`);
-    console.log(res);
+    
 
     if (!res.ok) {
       throw new Error("Failed to fetch data");
