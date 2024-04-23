@@ -1,5 +1,6 @@
 import connectDB from "@/config/database";
 import Property from "@/models/Property";
+import cloudinary from "@/config/cloudinary";
 import { getSessionUser } from "@/utils/getSessionUser";
 
 // Get /api/properties
@@ -23,7 +24,7 @@ export const POST = async (request) => {
     const sessionUser = await getSessionUser();
 
     if (!sessionUser || !sessionUser.userId) {
-        return new Response('User ID is required', { status: 401 });
+      return new Response("User ID is required", { status: 401 });
     }
 
     const { userId } = sessionUser;
@@ -61,14 +62,44 @@ export const POST = async (request) => {
         email: formData.get("seller_info.email"),
         phone: formData.get("seller_info.phone"),
       },
-      images,
       owner: userId,
     };
+
+    // Access the uploaded files from the form data
+    const imageUploadPromises = [];
+
+    for (const image of images) {
+      // Assuming image is a File object, extract the file data
+      const imageBuffer = await image.arrayBuffer();
+      const imageArray = Array.from(new Uint8Array(imageBuffer));
+      const imageData = Buffer.from(imageArray);
+
+      // Convert the image data to base64
+      const imageBase64 = imageData.toString("base64");
+
+      // Upload the image data as a base64 string to Cloudinary
+      const result = await cloudinary.uploader.upload(
+        `data:image/png;base64,${imageBase64}`,
+        {
+          folder: "propertypulsedev",
+        }
+      );
+
+      imageUploadPromises.push(result.secure_url);
+    }
+
+    // Wait for all image uploads to complete
+    const uploadedImages = await Promise.all(imageUploadPromises);
+
+    // Add the uploaded images to the propertyData object
+    propertyData.images = uploadedImages;
 
     const newProperty = new Property(propertyData);
     await newProperty.save();
 
-    return Response.redirect(`${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`);
+    return Response.redirect(
+      `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
+    );
   } catch (error) {
     return new Response("Failed to add property", { status: 500 });
   }
