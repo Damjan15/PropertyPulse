@@ -73,9 +73,11 @@ export const POST = async (request) => {
       const imageBuffer = await image.arrayBuffer();
       const imageArray = Array.from(new Uint8Array(imageBuffer));
       const imageData = Buffer.from(imageArray);
+      
 
       // Convert the image data to base64
       const imageBase64 = imageData.toString("base64");
+      console.log("Debugging");
 
       // Upload the image data as a base64 string to Cloudinary
       const result = await cloudinary.uploader.upload(
@@ -94,6 +96,7 @@ export const POST = async (request) => {
     // Add the uploaded images to the propertyData object
     propertyData.images = uploadedImages;
 
+    console.log(propertyData.images);
     const newProperty = new Property(propertyData);
     await newProperty.save();
 
