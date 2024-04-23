@@ -2,21 +2,7 @@ import Link from "next/link";
 import Hero from "@/components/Hero";
 import InfoBoxes from "@/components/InfoBoxes";
 import PropertyCard from "@/components/PropertyCard";
-
-
-async function fetchProperties() {
-  try {
-    const res = await fetch("http://localhost:3000/api/properties", { cache: 'no-store'});
-
-    if (!res.ok) {
-      throw new Error("Failed to fetch data");
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.log(error);
-  }
-}
+import { fetchProperties } from "@/utils/requests";
 
 
 export default async function HomePage() {
