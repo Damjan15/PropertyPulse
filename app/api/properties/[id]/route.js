@@ -52,3 +52,60 @@ export const DELETE = async (request, { params }) => {
     return new Response("Something went wrong", { status: 500 });
   }
 }
+
+// PUT /api/properties/:id
+export const PUT = async (request, { params }) => {
+  try {
+    await connectDB();
+
+    const { id } = params;
+    const { userId } = await getSessionUser();
+    const formData = await request.formData();
+
+    // Acces all values for amenities
+    const amenities = formData.getAll("amenities");
+
+    // Fetch the existing property's data
+    const existingProperty = await Property.findById(id);
+
+    // Check if the user is the owner of the property
+    if (existingProperty.owner.toString() !== userId) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    // Create the propertyData object with updated values
+    const propertyData = {
+      type: formData.get("property_type"),
+      name: formData.get("name"),
+      description: formData.get("description"),
+      location: {
+        street: formData.get("location.street"),
+        city: formData.get("location.city"),
+        state: formData.get("location.state"),
+        zipcode: formData.get("location.zipcode"),
+      },
+      beds: formData.get("beds"),
+      baths: formData.get("baths"),
+      square_feet: formData.get("square_feet"),
+      amenities,
+      rates: {
+        weekly: formData.get("rates.weekly"),
+        monthly: formData.get("rates.monthly"),
+        nightly: formData.get("rates.nightly."),
+      },
+      seller_info: {
+        name: formData.get("seller_info.name"),
+        email: formData.get("seller_info.email"),
+        phone: formData.get("seller_info.phone"),
+      },
+      owner: userId,
+    };
+
+    // Update the property with the propertyData object
+    await Property.findByIdAndUpdate(id, propertyData);
+
+    return new Response("Property Updated", { status: 200 });
+  } catch (error) {
+    return new Response("Failed to update property", { status: 500 });
+  }
+};
