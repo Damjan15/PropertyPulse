@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { FaBookmark } from "react-icons/fa";
 
 const BookmarkButton = ({ property }) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const handleClick = async () => {
     if (!userId) {
@@ -19,7 +20,7 @@ const BookmarkButton = ({ property }) => {
       const res = await fetch(`/api/bookmarks`, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ propertyId: property._id }),
       });
@@ -29,16 +30,60 @@ const BookmarkButton = ({ property }) => {
         toast.success(data.message);
         setIsBookmarked(data.isBookmarked);
       }
-
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
     }
-  }
-  return (
-    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold w-full py-2 px-4 rounded-full flex items-center justify-center" onClick={handleClick}>
+  };
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+
+    const checkBookmarkStatus = async () => {
+      try {
+        const res = await fetch(`/api/bookmarks/check`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (res.status === 200) {
+          const data = await res.json();
+          setIsBookmarked(data.isBookmarked);
+        }
+      } catch (error) {
+        // Handle fetch errors
+        console.log(error);
+        toast.error("Failed to check bookmark status");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkBookmarkStatus();
+  }, [property._id, userId]);
+  
+
+  if (loading) return <p className="text-center">Loading...</p>
+  return isBookmarked ? (
+    <button
+      className="bg-red-500 hover:bg-red-600 text-white font-bold w-full py-2 px-4 rounded-full flex items-center justify-center"
+      onClick={handleClick}
+    >
       <FaBookmark className="mr-2" />
-      Bookmark Property
+      Remove Bookmark
+    </button>
+  ) : (
+    <button
+      className="bg-blue-500 hover:bg-blue-600 text-white font-bold w-full py-2 px-4 rounded-full flex items-center justify-center"
+      onClick={handleClick}
+    >
+      <FaBookmark className="mr-2" />
+      Add Bookmark
     </button>
   );
 };
