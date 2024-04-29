@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";
+import { GlobalProvider } from "@/contexts/GlobalContext";
 import "@/assets/styles/globals.css";
 
 import { ToastContainer } from "react-toastify";
@@ -13,15 +14,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <AuthProvider>
-      <html lang="en">
-        <body>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <ToastContainer />
-        </body>
-      </html>
-    </AuthProvider>
+    <GlobalProvider>
+      <AuthProvider>
+        <html lang="en">
+          <body>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <ToastContainer />
+          </body>
+        </html>
+      </AuthProvider>
+    </GlobalProvider>
   );
 }
