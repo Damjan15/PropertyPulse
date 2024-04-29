@@ -1,5 +1,5 @@
-import Message from "@/components/Message"
+import Messages from "@/components/Messages"
 
 export default function MessagesPage() {
-    return <Message />
+    return <Messages />
 }
